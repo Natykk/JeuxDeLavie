@@ -10,7 +10,13 @@ public class JeuDeLaVie implements Observable{
     private List<Observateur> observateurs;
     private List<Commande> commandes;
     private int Generation;
+    private Visiteur visiteur;
 
+    /**
+     * Constructeur de la classe JeuDeLaVie
+     *
+     *
+     */
     public JeuDeLaVie() {
         this.xMax=50;
         this.yMax=50;
@@ -18,10 +24,27 @@ public class JeuDeLaVie implements Observable{
         this.observateurs = new ArrayList<>();
         this.commandes = new ArrayList<>();
         this.Generation=0;
-        initialiseGrille();
+        initialiseGrilleVide();
+        this.visiteur = new VisiteurClassique(this);
     }
 
-    public void initialiseGrille(){
+    /**
+     * initialise la grille avec des uniquement des cellules mortes
+     *
+     */
+    public void initialiseGrilleVide(){
+        for(int i = 0; i < xMax; i++){
+            for(int j = 0; j < yMax; j++){
+                this.grille[i][j] = new Cellule(i,j,CelluleEtatMort.getInstance());
+            }
+        }
+    }
+
+    /**
+     * initialise la grille avec des cellules vivantes et mortes de manière aléatoire
+     *
+     */
+    public void initaliseGrilleRandom(){
         for(int i = 0; i < xMax; i++){
             for(int j = 0; j < yMax; j++){
                 if(Math.random() < 0.5){
@@ -34,44 +57,67 @@ public class JeuDeLaVie implements Observable{
         }
     }
 
-    public void StructureDepart(int numeroConfig){
-        
-        // Ajoute les différentes structures de départ dans la grille du jeux de la vie selon le design pattern Factory
-        
-
-
-    }
-
+    /**
+     * Recupère la cellule à la position x,y
+     * @param x
+     * @param y
+     * @return
+     */
     public Cellule getGrilleXY(int x, int y){
         return grille[x][y];
     }
 
+    /**
+     * getter qui retourne la largeur de la grille
+     * @return
+     */
     public int getxMax(){
         return xMax;
     }
 
+    /**
+     * getter qui retourne la hauteur de la grille
+     * @return
+     */
     public int getyMax(){
         return yMax;
     }
 
+    /**
+     * attache un observateur à la liste des observateurs
+     * @param o
+     */
     public void attacheObservateur(Observateur o){
         observateurs.add(o);
     }
 
+    /**
+     * détache un observateur de la liste des observateurs
+     * @param o
+     */
     public void detacheObservateur(Observateur o){
         observateurs.remove(o);
     }
 
+    /**
+     * notifie tous les observateurs contenu dans la liste des observateurs
+     */
     public void notifieObservateurs(){
         for(Observateur o : observateurs){
             o.actualise();
         }
     }
 
+    /**
+     * ajoute une commande à la liste des commandes
+     * @param c
+     */
     public void ajouteCommande(Commande c ){
         commandes.add(c);
     }
-
+    /**
+     * execute toutes les commandes de la liste des commandes
+     */
     public void executeCommandes(){
         for(Commande c : commandes){
             c.executer();
@@ -79,6 +125,10 @@ public class JeuDeLaVie implements Observable{
         //commandes.clear();
     }
 
+    /**
+     * getter qui retourne le nombre de cellules vivantes dans la grille
+     * @return le nombre de cellules vivantes
+     */
     public int NbCelluleVivante(){
         int nbVivante=0;
         for(int i = 0; i < xMax; i++){
@@ -92,47 +142,50 @@ public class JeuDeLaVie implements Observable{
 
     }
 
+    /**
+     * distribue un visiteur sur toutes les cellules de la grille
+     */
     public void distribueVisiteur(){
-        Visiteur v = new VisiteurClassique(this);
         for(int i = 0; i < xMax; i++){
             for(int j = 0; j < yMax; j++){
-                grille[i][j].accepte(v);
+                grille[i][j].accepte(this.visiteur);
             }
         }
-    
     }
 
-    public void distribueVisiteurHighLife(){
-        Visiteur v = new VisiteurHighLife(this);
-        for(int i = 0; i < xMax; i++){
-            for(int j = 0; j < yMax; j++){
-                grille[i][j].accepte(v);
-            }
-        }
-    
-    }
 
-    public void distribueVisiteurDayNight(){
-        Visiteur v = new VisiteurDayNight(this);
-        for(int i = 0; i < xMax; i++){
-            for(int j = 0; j < yMax; j++){
-                grille[i][j].accepte(v);
-            }
-        }
-    
-    }
-
+    /**
+     * calcule la génération suivante du jeu
+     */
     public void calculerGenerationSuivante(){
+
         distribueVisiteur();
         executeCommandes();
         notifieObservateurs();
         this.Generation++;
     }
 
+    /**
+     * méthode qui set le visiteur du jeu
+     * @param v
+     */
+    public void setVisiteur(Visiteur v){
+        this.visiteur = v;
+    }
+
+    /**
+     * Retourne le numero de la génération actuelle
+     * @return
+     */
     public int getGeneration(){
         return this.Generation;
     }
 
+    /**
+     * Main du programme qui initialise le jeu , les observateurs et la fenêtre
+     * @param args
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws InterruptedException{
 
         JeuDeLaVie jeu = new JeuDeLaVie();
@@ -144,7 +197,7 @@ public class JeuDeLaVie implements Observable{
         JFrame Frame = new JFrame();
         Frame.setSize(600,600);
         Frame.add(jeuUI);
-
+        Frame.setResizable(false);
         Frame.setVisible(true);
         jeuUI.PositionneFenetreEtBouton(Frame);
         
