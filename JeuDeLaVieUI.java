@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Random;
 
 public class JeuDeLaVieUI extends JPanel implements Observateur {
     private JeuDeLaVie jeu;
@@ -17,12 +18,12 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
     private JButton boutonGenAleatoire = new JButton("Génération aléatoire");
     private JButton boutonClearGrille = new JButton("Reset la Grille");
 
-    private Thread startThread;
+    private Thread startThread=null;
     private JSlider sliderVitesse = new JSlider(JSlider.VERTICAL, 0, 100, 50);
     private int vitesse = 100;
     private int cellSize = 20; // Taille de chaque cellule
-    private Color aliveColor = Color.BLACK; // Couleur des cellules vivantes
     private Color deadColor = Color.WHITE; // Couleur des cellules mortes
+    
 
     /**
      * Constructeur de la classe JeuDeLaVieUI
@@ -53,7 +54,8 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         for (int x = 0; x < jeu.getxMax(); x++) {
             for (int y = 0; y < jeu.getyMax(); y++) {
                 if (jeu.getGrilleXY(x, y).estVivante()) {
-                    g.setColor(aliveColor);
+                    
+                    g.setColor(jeu.getGrilleXY(x, y).getColor());
                     g.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                 } else {
                     g.setColor(deadColor);
@@ -98,7 +100,8 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        // Positionne les boutons
+        // Positionne les boutons collé a la grille 
+        
         boutonStart.setBounds(0, 0, 100, 50);
         boutonStop.setBounds(0, 50, 100, 50);
         sliderVitesse.setBounds(0, 150, 100, 100);
@@ -112,23 +115,27 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
 
         // Ajouter des actions aux boutons
         boutonStart.addActionListener(e -> {
-            startThread = new Thread(() -> {
-                while (true) {
-                    jeu.calculerGenerationSuivante();
-                    try {
-                        Thread.sleep(JeuDeLaVieUI.this.vitesse);
-                    } catch (InterruptedException ex) {
-                        break;
+            if(startThread == null){
+                startThread = new Thread(() -> {
+                    while (true) {
+                        jeu.calculerGenerationSuivante();
+                        try {
+                            Thread.sleep(JeuDeLaVieUI.this.vitesse);
+                        } catch (InterruptedException ex) {
+                            break;
+                        }
                     }
-                }
-            });
-            startThread.start();
+                });
+                startThread.start();
+            }
         });
 
         boutonStop.addActionListener(e -> {
             // Arrêter le thread de boutonStart
-            if (startThread != null)
+            if (startThread != null){
                 startThread.interrupt();
+                startThread = null;
+            }
         });
 
         boutonSkipGen.addActionListener(e -> jeu.calculerGenerationSuivante());
@@ -181,25 +188,22 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         // Si l'utilisateur clique sur une cellule, elle devient vivante si elle était morte et vice versa
         addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                // si le jeu est en cours, ne pas permettre de placer des structures
-                if (startThread != null && startThread.isAlive()) {
-                    return;
-                }else{
+            public void mousePressed(MouseEvent e) {
                     // Obtention des coordonnées x et y du clic de souris
-                    int mouseX = e.getX() / 20;
-                    int mouseY = e.getY() / 20;
+                    int mouseX = e.getX() / cellSize;
+                    int mouseY = e.getY() / cellSize;
 
                     if(jeu.getGrilleXY(mouseX, mouseY).estVivante()){
                         jeu.getGrilleXY(mouseX, mouseY).meurt();
+                        //new CommandeMeurt(jeu.getGrilleXY(mouseX, mouseY));
                     }else{
                         jeu.getGrilleXY(mouseX, mouseY).vit();
+                        //new CommandeVit(jeu.getGrilleXY(mouseX, mouseY));
                     }
 
                     // Mise à jour de l'affichage
                     actualise();
-
-                }
+                
             }
         });
     }

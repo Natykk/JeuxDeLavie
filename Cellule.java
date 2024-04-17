@@ -1,7 +1,12 @@
+import java.awt.Color;
+import java.util.Random;
+
 public class Cellule {
     private CelluleEtat etat; // état de la cellule
     private int x ; // coordonnées de la cellule dans la grille
     private int y ;
+    private Color aliveColor = null;
+    //private Color aliveColor = new Color(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255));
 
     /**
      * Constructeur de la classe Cellule
@@ -36,6 +41,14 @@ public class Cellule {
      */
     public boolean estVivante() {
         return etat.estVivante();
+    }
+
+    public Color getColor(){
+        return this.aliveColor;
+    }
+
+    public void setColor(Color c){
+        this.aliveColor = c;
     }
 
     /**
