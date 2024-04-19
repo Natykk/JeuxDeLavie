@@ -20,7 +20,5 @@ public abstract class Visiteur {
      */
     public void visiteCelluleMorte(Cellule cellule){
 
-        
-
     }
 }

@@ -17,13 +17,14 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
     private JButton boutonModeHighLife = new JButton("Mode High Life");
     private JButton boutonGenAleatoire = new JButton("Génération aléatoire");
     private JButton boutonClearGrille = new JButton("Reset la Grille");
+    private JButton boutonChoisirCouleur = new JButton("Choisir une Couleur");
 
     private Thread startThread=null;
     private JSlider sliderVitesse = new JSlider(JSlider.VERTICAL, 0, 100, 50);
     private int vitesse = 100;
     private int cellSize = 20; // Taille de chaque cellule
     private Color deadColor = Color.WHITE; // Couleur des cellules mortes
-    
+
 
     /**
      * Constructeur de la classe JeuDeLaVieUI
@@ -54,7 +55,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         for (int x = 0; x < jeu.getxMax(); x++) {
             for (int y = 0; y < jeu.getyMax(); y++) {
                 if (jeu.getGrilleXY(x, y).estVivante()) {
-                    
+
                     g.setColor(jeu.getGrilleXY(x, y).getColor());
                     g.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                 } else {
@@ -74,8 +75,12 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
      */
     public void PositionneFenetreEtBouton(JFrame frame) {
         frame.setLayout(new BorderLayout());
+        //La Taille de la fenetre doit être de 1182 x 1050 pour que la grille soit bien affichée
 
-        JPanel buttonsPanel = new JPanel(new GridLayout(7, 1)); // 3 lignes, 1 colonne
+
+
+
+        JPanel buttonsPanel = new JPanel(new GridLayout(8, 1)); // 3 lignes, 1 colonne
         buttonsPanel.add(boutonSkipGen);
         buttonsPanel.add(boutonStructures);
         buttonsPanel.add(boutonModeClassique);
@@ -83,6 +88,9 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         buttonsPanel.add(boutonModeHighLife);
         buttonsPanel.add(boutonGenAleatoire);
         buttonsPanel.add(boutonClearGrille);
+        buttonsPanel.add(boutonChoisirCouleur);
+        // La Taille de la frame doit être de 1182 x 1050 pour que la grille soit bien affichée
+
 
 
 
@@ -92,16 +100,17 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         frame.add(sliderVitesse, BorderLayout.WEST);
         frame.add(buttonsPanel, BorderLayout.EAST);
 
-        // Calcul de la taille de la fenêtre en fonction de la grille et de la taille des cellules
-        int windowWidth = jeu.getxMax() * cellSize + 165; // 150 est la largeur des boutons et du slider
-        int windowHeight = jeu.getyMax() * cellSize + 50; // 50 est une valeur arbitraire pour l'espace supplémentaire
+        // Calcul de la taille de la fenêtre en fonction de la grille et de la taille des cellules et des boutons
+        int windowWidth = jeu.getxMax() * cellSize ;
+        int windowHeight = jeu.getyMax() * cellSize ;
+
 
         frame.setSize(windowWidth, windowHeight);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        // Positionne les boutons collé a la grille 
-        
+        // Positionne les boutons collé a la grille
+
         boutonStart.setBounds(0, 0, 100, 50);
         boutonStop.setBounds(0, 50, 100, 50);
         sliderVitesse.setBounds(0, 150, 100, 100);
@@ -112,6 +121,7 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
         boutonModeHighLife.setBounds(0, 0, 40, 50);
         boutonGenAleatoire.setBounds(0, 0, 40, 50);
         boutonClearGrille.setBounds(0, 0, 40, 50);
+        boutonChoisirCouleur.setBounds(0, 0, 40, 50);
 
         // Ajouter des actions aux boutons
         boutonStart.addActionListener(e -> {
@@ -170,18 +180,26 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
             actualise();
         });
 
+
+        boutonChoisirCouleur.addActionListener(e -> {
+            Color selectedColor = choisirCouleur();
+            if (selectedColor != null) {
+                // appliquer la couleur choisie à toutes les cellules
+                for (int x = 0; x < jeu.getxMax(); x++) {
+                    for (int y = 0; y < jeu.getyMax(); y++) {
+                        jeu.getGrilleXY(x, y).setColor(selectedColor);
+                    }
+                }
+                actualise();
+            }
+        });
+
+
         boutonClearGrille.addActionListener(e -> {
             // Réinitialiser la grille
             jeu.initialiseGrilleVide();
             actualise();
         });
-
-
-
-
-
-
-
 
 
 
@@ -203,10 +221,21 @@ public class JeuDeLaVieUI extends JPanel implements Observateur {
 
                     // Mise à jour de l'affichage
                     actualise();
-                
+
             }
         });
+
     }
+
+    /**
+     * Méthode pour choisir une couleur
+     * @return Color couleur choisie
+     */
+    private Color choisirCouleur() {
+        return JColorChooser.showDialog(this, "Choisir une couleur", Color.WHITE);
+    }
+
+
 
     /**
      * Méthode pour placer une structure sur la grille

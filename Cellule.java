@@ -5,8 +5,7 @@ public class Cellule {
     private CelluleEtat etat; // état de la cellule
     private int x ; // coordonnées de la cellule dans la grille
     private int y ;
-    private Color aliveColor = null;
-    //private Color aliveColor = new Color(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255));
+    public static Color aliveColor = Color.BLACK;
 
     /**
      * Constructeur de la classe Cellule
@@ -44,7 +43,7 @@ public class Cellule {
     }
 
     public Color getColor(){
-        return this.aliveColor;
+        return aliveColor;
     }
 
     public void setColor(Color c){

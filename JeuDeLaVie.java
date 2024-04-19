@@ -41,49 +41,9 @@ public class JeuDeLaVie implements Observable{
                 this.grille[i][j] = new Cellule(i,j,CelluleEtatMort.getInstance());
             }
         }
-        setColorGrille();
     }
 
-    /**
-     * Met la couleur des cellules de la grille 
-     *
-     */
-    public void setColorGrille(){
-        // Créer un couleur en hexadécimal
-        Color couleur = new Color(255, 0, 0);
-        int nouvRed = couleur.getRed();
-        int nouvGreen = 0;
-        int nouvBlue = 0;
-        System.out.println(couleur.toString());
 
-        for(int i = 0; i < xMax; i++){
-            for(int j = 0; j < yMax; j++){
-
-                // on diminue le rouge et on augmente le vert puis on diminue le vert pour augmenter le bleu et on recommence pour faire un dégradé
-                if(nouvRed > 0 && nouvGreen < 255 && nouvBlue == 0){
-                    nouvRed--;
-                    nouvGreen++;
-                }
-                else if(nouvRed == 0 && nouvGreen > 0 && nouvBlue < 255){
-                    nouvGreen--;
-                    nouvBlue++;
-                }
-                else if(nouvRed < 255 && nouvGreen == 0 && nouvBlue > 0){
-                    nouvRed++;
-                    nouvBlue--;
-                }
-
-                couleur = new Color(nouvRed, nouvGreen, nouvBlue);
-
-                grille[i][j].setColor(couleur);
-
-
-
-            
-
-            }
-        }
-    }
 
     /**
      * initialise la grille avec des cellules vivantes et mortes de manière aléatoire
@@ -100,7 +60,7 @@ public class JeuDeLaVie implements Observable{
                 }
             }
         }
-        setColorGrille();
+
     }
 
     /**
@@ -241,9 +201,12 @@ public class JeuDeLaVie implements Observable{
         jeu.attacheObservateur(jeuUI);
         jeu.attacheObservateur(ObsText);
         JFrame Frame = new JFrame();
-        Frame.setSize(600,600);
+        // La Taille de la fenêtre doit être de 1182 x 1050 pour que la grille soit bien affichée
+        Frame.setSize(1182, 1050);
+        Frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         Frame.add(jeuUI);
-        Frame.setResizable(true);
+        Frame.setResizable(false);
         Frame.setVisible(true);
         jeuUI.PositionneFenetreEtBouton(Frame);
         
